@@ -24,12 +24,13 @@ let formValue = ''
 let totalPages = 0
 const perPage = 15
 
-function handleSubmit(event) {
-  event.preventDefault();
+hideLoadMoreButton()
 
- formValue = event.target.elements['search-text'].value.trim();
+async function handleSubmit(event) {
+  event.preventDefault();
+  page = 1;
+  formValue = event.target.elements['search-text'].value.trim();
   clearGallery();
-  
   if (!formValue) {
     iziToast.show({
       color: 'red',
@@ -39,47 +40,60 @@ function handleSubmit(event) {
     });
     return;
   }
-showLoader();
-   getImagesByQuery(formValue, page)
-    .then(({hits, totalHits}) => {
-      if (hits.length == 0) {
+  
+  showLoader();
+  try {
+    const { hits, totalHits } = await getImagesByQuery(formValue, page)
+  
+    if (hits.length == 0) {
+      iziToast.show({
+        color: 'red',
+        position: 'topRight',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+      });
+      return;
+    }
+    createGallery(hits)
+    totalPages = Math.ceil(totalHits / perPage)
+      
+
+    if (page < totalPages) {
+      showLoadMoreButton()
+    } else {
+      hideLoadMoreButton()
+      iziToast.show({
+          color: 'blue',
+          position: 'topRight',
+          message:
+           " We're sorry, but you've reached the end of search results.",
+        });
+    }
+      
+  }
+      catch(error) {
         iziToast.show({
           color: 'red',
           position: 'topRight',
           message:
             'Sorry, there are no images matching your search query. Please try again!',
         });
-        return;
+  }
+  
+      finally {
+        hideLoader();
+        event.target.reset();
       }
-      createGallery(hits)
-      totalPages = Math.ceil(totalHits / perPage) 
-      
+  }
 
-      if (page < totalPages) {
-        showLoadMoreButton()
-      } 
-      
-    })
-    .catch(error => {
-       iziToast.show({
-          color: 'red',
-          position: 'topRight',
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-        });
-    })
-    .finally(() => {
-      hideLoader();
-      event.target.reset();
-    });
-}
 
 async function onLoadMore(ev) {
   page++
   btn.disabled = true
-  
+  hideLoadMoreButton()
+  showLoader();
   try {
-    showLoader();
+    
     const data = await getImagesByQuery(formValue, page) 
     createGallery(data.hits)
     
@@ -91,6 +105,8 @@ async function onLoadMore(ev) {
           message:
            " We're sorry, but you've reached the end of search results.",
         });
+    } else {
+      showLoadMoreButton()
     }
     const card = document.querySelector(".gallery-item")
     const cardHeight = card.getBoundingClientRect().height

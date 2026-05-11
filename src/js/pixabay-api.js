@@ -10,7 +10,7 @@ async function getImagesByQuery(query, page = 1) {
             page: page,
             image_type: 'photo',
             orientation: 'horizontal',
-            safesearch: 'true'
+            safesearch: true
         }
      })
         
