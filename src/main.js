@@ -31,6 +31,7 @@ async function handleSubmit(event) {
   page = 1;
   formValue = event.target.elements['search-text'].value.trim();
   clearGallery();
+  hideLoadMoreButton()
   if (!formValue) {
     iziToast.show({
       color: 'red',
@@ -38,6 +39,7 @@ async function handleSubmit(event) {
       message:
         'Please enter your request!',
     });
+    
     return;
   }
   
@@ -111,7 +113,7 @@ async function onLoadMore(ev) {
     const card = document.querySelector(".gallery-item")
     const cardHeight = card.getBoundingClientRect().height
     window.scrollBy({
-  top: cardHeight,
+  top: cardHeight * 2,
   behavior: "smooth",
 });
   }
