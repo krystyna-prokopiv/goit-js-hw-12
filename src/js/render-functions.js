@@ -29,7 +29,7 @@ function createGallery(images) {
     return
 }
 
-    gallery.innerHTML = markap;
+    gallery.insertAdjacentHTML("beforeend", markap)
 
     if (!lightbox) {
          lightbox = new SimpleLightbox('.gallery a', {
@@ -70,12 +70,23 @@ function hideLoader() {
     loader.classList.remove("visible")
     
 }
+const btn = document.querySelector(".button-load-more")
 
 function showLoadMoreButton() {
+    if (!btn) {
+        return
+    }
+    btn.classList.remove("load-more-hidden")
     
 }
 
 function hideLoadMoreButton() {
+    if (!btn) {
+        return
+    }
+
+    
+   btn.classList.add("load-more-hidden")
     
 }
 
